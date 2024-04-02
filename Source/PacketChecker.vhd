@@ -1,5 +1,6 @@
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 
@@ -33,17 +34,18 @@ architecture behavioral of PacketChecker is
 	type PC_state is (Head, Command, AddrH, AddrL, d4, d3, d2, d1, SumH, SumL, Proc, RR);
 	signal PC_st : PC_state := Head;
 
-	signal Command_tmp : std_logic_vector(8 - 1 downto 0);
-	signal Addr_H      : std_logic_vector(8 - 1 downto 0);
-	signal Addr_L      : std_logic_vector(8 - 1 downto 0);
-	signal D_4         : std_logic_vector(8 - 1 downto 0);
-	signal D_3         : std_logic_vector(8 - 1 downto 0);
-	signal D_2         : std_logic_vector(8 - 1 downto 0);
-	signal D_1         : std_logic_vector(8 - 1 downto 0);
-	signal Sum_H       : std_logic_vector(8 - 1 downto 0);
-	signal Sum_L       : std_logic_vector(8 - 1 downto 0);
+	signal Command_tmp : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal Addr_H      : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal Addr_L      : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal D_4         : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal D_3         : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal D_2         : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal D_1         : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal Sum_H       : std_logic_vector(8 - 1 downto 0) := x"88";
+	signal Sum_L       : std_logic_vector(8 - 1 downto 0) := x"88";
 
-	signal Real_Sum   : std_logic_vector(16 - 1 downto 0);
+	signal Real_Sum   : std_logic_vector(15 downto 0);
+	signal Real_Sum_2 : std_logic_vector(15 downto 0);
 	signal Real_Sum_H : std_logic_vector(8 - 1 downto 0);
 	signal Real_Sum_L : std_logic_vector(8 - 1 downto 0);
 
@@ -54,25 +56,26 @@ begin
 	begin
 		if rising_edge(clk) then
 			if rst = '1' then
-				PC_st      <= Head;
-				error      <= '0';
-				Addr_H     <= x"00";
-				Addr_L     <= x"00";
-				D_4        <= x"00";
-				D_3        <= x"00";
-				D_2        <= x"00";
-				D_1        <= x"00";
-				Sum_H      <= x"00";
-				Sum_L      <= x"00";
-				send_resp  <= '0';
-				Read_data  <= x"00000000";
-				dataOutRdy <= '0';
-				dataOut    <= x"00";
-				wrAddress  <= x"0000";
-				rdAddress  <= x"0000";
-				wrData     <= x"00";
-				wrEn       <= '0';
-				rdEn       <= '0';
+				PC_st       <= Head;
+				error       <= '0';
+				Addr_H      <= x"00";
+				Addr_L      <= x"00";
+				D_4         <= x"00";
+				D_3         <= x"00";
+				D_2         <= x"00";
+				D_1         <= x"00";
+				Sum_H       <= x"00";
+				Sum_L       <= x"00";
+				send_resp   <= '0';
+				Read_data   <= x"00000000";
+				dataOutRdy  <= '0';
+				dataOut     <= x"00";
+				wrAddress   <= x"0000";
+				rdAddress   <= x"0000";
+				wrData      <= x"00000000";
+				wrEn        <= '0';
+				rdEn        <= '0';
+				Command_tmp <= x"88";
 			else
 				case PC_st is
 					when Head =>
@@ -168,12 +171,8 @@ begin
 					when SumH =>
 						if send_resp = '1' then
 							dataOutRdy <= '1';
-							dataOut    <=
-								((x"00" & Read_data(32 - 1 downto 32 - 8)) +
-								(x"00" & Read_data(32 - 8 - 1 downto 32 - 8 - 8)) +
-								(x"00" & Read_data(32 - 16 - 1 downto 32 - 16 - 8)) +
-								(x"00" & Read_data(32 - 24 - 1 downto 32 - 24 - 8)))(16 - 1 downto 8);
-							PC_st <= SumL;
+							dataOut    <= Real_Sum_2(16 - 1 downto 8);
+							PC_st      <= SumL;
 						else
 							if dataInRdy = '1' then
 								Sum_H <= DataIn;
@@ -188,12 +187,8 @@ begin
 					when SumL =>
 						if send_resp = '1' then
 							dataOutRdy <= '1';
-							dataOut    <=
-								((x"00" & Read_data(32 - 1 downto 32 - 8)) +
-								(x"00" & Read_data(32 - 8 - 1 downto 32 - 8 - 8)) +
-								(x"00" & Read_data(32 - 16 - 1 downto 32 - 16 - 8)) +
-								(x"00" & Read_data(32 - 24 - 1 downto 32 - 24 - 8)))(8 - 1 downto 0);
-							PC_st <= SumL;
+							dataOut    <= Real_Sum_2(16 - 1 downto 8);
+							PC_st      <= SumL;
 						else
 							if dataInRdy = '1' then
 								Sum_L <= DataIn;
@@ -227,19 +222,24 @@ begin
 				end case;
 			end if;
 		end if;
-	end if;
-end process; -- PacketCheckerInst
+	end process; -- PacketCheckerInst
 
-Real_Sum <=
-	(x"00" & x"3B") +
-	(x"00" & Command_tmp) +
-	(x"00" & Addr_H) +
-	(x"00" & Addr_L) +
-	(x"00" & D_4) +
-	(x"00" & D_3) +
-	(x"00" & D_2) +
-	(x"00" & D_1);
-Real_Sum_H <= Real_Sum(16 - 1 downto 8);
-Real_Sum_L <= Real_Sum(8 - 1 downto 0);
+	Real_Sum <=
+		(x"00" & x"3B") +
+		(x"00" & Command_tmp) +
+		(x"00" & Addr_H) +
+		(x"00" & Addr_L) +
+		(x"00" & D_4) +
+		(x"00" & D_3) +
+		(x"00" & D_2) +
+		(x"00" & D_1);
+	Real_Sum_H <= Real_Sum(16 - 1 downto 8);
+	Real_Sum_L <= Real_Sum(8 - 1 downto 0);
+
+	Real_Sum_2 <=
+		(x"00" & Read_data(32 - 1 downto 32 - 8)) +
+		(x"00" & Read_data(32 - 8 - 1 downto 32 - 8 - 8)) +
+		(x"00" & Read_data(32 - 16 - 1 downto 32 - 16 - 8)) +
+		(x"00" & Read_data(32 - 24 - 1 downto 32 - 24 - 8));
 
 end architecture;

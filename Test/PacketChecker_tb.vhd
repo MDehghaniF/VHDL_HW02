@@ -53,7 +53,7 @@ architecture behavioral of PacketChecker_tb is
 begin
 
     PacketCheckerInst : PacketChecker port map
-        (clk, rst, dataIn, dataInRdy, dataOut, dataOutRdy, wrAddres, wrData, wrEn, rdAddress, rdData, rdRdy, rdEn, error);
+        (clk, rst, dataIn, dataInRdy, dataOut, dataOutRdy, wrAddress, wrData, wrEn, rdAddress, rdData, rdRdy, rdEn, error);
 
     process
     begin
