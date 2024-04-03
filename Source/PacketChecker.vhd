@@ -79,20 +79,24 @@ begin
 			else
 				case PC_st is
 					when Head =>
+						wrEn <= '0';
+						rdEn <= '0';
 						if send_resp = '1' then
 							dataOutRdy <= '1';
 							dataOut    <= x"3B";
 							PC_st      <= Command;
 						else
-							error  <= '0';
-							Addr_H <= x"00";
-							Addr_L <= x"00";
-							D_4    <= x"00";
-							D_3    <= x"00";
-							D_2    <= x"00";
-							D_1    <= x"00";
-							Sum_H  <= x"00";
-							Sum_L  <= x"00";
+							dataOutRdy <= '0';
+							dataOut    <= x"00";
+							error      <= '0';
+							Addr_H     <= x"00";
+							Addr_L     <= x"00";
+							D_4        <= x"00";
+							D_3        <= x"00";
+							D_2        <= x"00";
+							D_1        <= x"00";
+							Sum_H      <= x"00";
+							Sum_L      <= x"00";
 							if dataInRdy = '1' then
 								if dataIn = x"3B" then
 									PC_st <= Command;
@@ -176,7 +180,7 @@ begin
 						else
 							if dataInRdy = '1' then
 								Sum_H <= DataIn;
-								if Real_Sum_H = Sum_H then
+								if Real_Sum_H = DataIn then
 									PC_st <= SumL;
 								else
 									error <= '1';
@@ -187,12 +191,13 @@ begin
 					when SumL =>
 						if send_resp = '1' then
 							dataOutRdy <= '1';
-							dataOut    <= Real_Sum_2(16 - 1 downto 8);
-							PC_st      <= SumL;
+							dataOut    <= Real_Sum_2(7 downto 0);
+							PC_st      <= Head;
+							send_resp  <= '0';
 						else
 							if dataInRdy = '1' then
 								Sum_L <= DataIn;
-								if Real_Sum_L = Sum_L then
+								if Real_Sum_L = DataIn then
 									PC_st <= Proc;
 									if Command_tmp = x"00" then
 										wrAddress <= (Addr_H & Addr_L);
@@ -217,7 +222,9 @@ begin
 					when RR =>
 						if rdRdy = '1' then
 							Read_data <= rdData;
-							PC_st     <= RR;
+							PC_st     <= Head;
+							send_resp <= '1';
+							rdEn      <= '0';
 						end if;
 				end case;
 			end if;
@@ -237,6 +244,8 @@ begin
 	Real_Sum_L <= Real_Sum(8 - 1 downto 0);
 
 	Real_Sum_2 <=
+		(x"00" & x"3B") +
+		(x"00" & x"FF") +
 		(x"00" & Read_data(32 - 1 downto 32 - 8)) +
 		(x"00" & Read_data(32 - 8 - 1 downto 32 - 8 - 8)) +
 		(x"00" & Read_data(32 - 16 - 1 downto 32 - 16 - 8)) +

@@ -16,7 +16,7 @@ vsim -t 100ps -vopt PacketChecker_tb -voptargs=+acc
 config wave -signalnamewidth 1
 
 # add wave -format Logic -radix decimal sim:/PacketChecker_tb/*
-add wave -format Logic -radix decimal sim:/PacketChecker_tb/PacketCheckerInst/*
+add wave -format Logic -radix hex sim:/PacketChecker_tb/PacketCheckerInst/*
 
 
 run -all

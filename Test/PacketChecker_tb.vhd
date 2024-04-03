@@ -45,8 +45,8 @@ architecture behavioral of PacketChecker_tb is
     signal wrData    : std_logic_vector(32 - 1 downto 0);
     signal wrEn      : std_logic;
     signal rdAddress : std_logic_vector(16 - 1 downto 0);
-    signal rdData    : std_logic_vector(32 - 1 downto 0);
-    signal rdRdy     : std_logic;
+    signal rdData    : std_logic_vector(32 - 1 downto 0) := x"00000000";
+    signal rdRdy     : std_logic                         := '0';
     signal rdEn      : std_logic;
 
     signal error : std_logic;
@@ -57,12 +57,175 @@ begin
 
     process
     begin
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+        rst <= '1' after periodCLK/8;
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        rst <= '0' after periodCLK/8;
+
         for i in 1 to 10 loop
             clk <= '1';
             wait for periodCLK/2;
             clk <= '0';
             wait for periodCLK/2;
         end loop;
+
+        dataIn    <= x"3B" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"00" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"12" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"24" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"48" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"96" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"44" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"22" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+        dataIn    <= x"01" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+        dataIn    <= x"B5" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        for i in 1 to 10 loop
+            clk <= '1';
+            wait for periodCLK/2;
+            clk <= '0';
+            wait for periodCLK/2;
+        end loop;
+        dataIn    <= x"3B" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"FF" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"12" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"24" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        dataIn    <= x"01" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+        dataIn    <= x"70" after periodCLK/8;
+        dataInRdy <= '1' after periodCLK/8;
+
+        for i in 1 to 3 loop
+            clk <= '1';
+            wait for periodCLK/2;
+            clk <= '0';
+            wait for periodCLK/2;
+        end loop;
+
+        rdData <= x"11223344" after periodCLK/8;
+        rdRdy  <= '1' after periodCLK/8;
+
+        clk <= '1';
+        wait for periodCLK/2;
+        clk <= '0';
+        wait for periodCLK/2;
+
+        rdRdy <= '0' after periodCLK/8;
+
+        for i in 1 to 10 loop
+            clk <= '1';
+            wait for periodCLK/2;
+            clk <= '0';
+            wait for periodCLK/2;
+        end loop;
+
         wait;
     end process;
 
